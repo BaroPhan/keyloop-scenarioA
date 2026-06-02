@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "Unified Service Scheduler",
+    "description": "Keyloop Scenario A — vehicle service appointment API.\n\n**Setup:**\n1. Run `docker compose up -d` and `npm run seed`\n2. Run `Customer Login` or `Admin Login` — tokens are saved automatically\n3. Use seeded ids: customerId=1, vehicleId=1, dealershipId=1, serviceTypeId=1 (oil change)\n\n**Swagger:** http://localhost:3000/api/docs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "customerToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "customerId", "value": "1" },
+    { "key": "vehicleId", "value": "1" },
+    { "key": "dealershipId", "value": "1" },
+    { "key": "serviceTypeId", "value": "1" },
+    { "key": "appointmentId", "value": "1" },
+    { "key": "watchId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newcustomer@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Customer\",\n  \"phone\": \"555-0199\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('customerToken', json.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('adminToken', json.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin12345\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/admin/login"
+          }
+        },
+        {
+          "name": "Get Me (any token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reference",
+      "item": [
+        {
+          "name": "List Dealerships",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dealerships?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["dealerships"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Service Types",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/service-types?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["service-types"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Capabilities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/capabilities?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["capabilities"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/customers?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Bays by Dealership",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dealerships/{{dealershipId}}/service-bays?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["dealerships", "{{dealershipId}}", "service-bays"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Technicians by Dealership",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/dealerships/{{dealershipId}}/technicians?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["dealerships", "{{dealershipId}}", "technicians"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Vehicles by Customer",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}/vehicles?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["customers", "{{customerId}}", "vehicles"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Availability",
+      "item": [
+        {
+          "name": "Probe Availability",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/availability?dealershipId={{dealershipId}}&serviceTypeId={{serviceTypeId}}&startTime=2030-07-01T09:00:00.000Z",
+              "host": ["{{baseUrl}}"],
+              "path": ["availability"],
+              "query": [
+                { "key": "dealershipId", "value": "{{dealershipId}}" },
+                { "key": "serviceTypeId", "value": "{{serviceTypeId}}" },
+                { "key": "startTime", "value": "2030-07-01T09:00:00.000Z" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Open Slots (day)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/availability/slots?dealershipId={{dealershipId}}&serviceTypeId={{serviceTypeId}}&date=2030-07-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["availability", "slots"],
+              "query": [
+                { "key": "dealershipId", "value": "{{dealershipId}}" },
+                { "key": "serviceTypeId", "value": "{{serviceTypeId}}" },
+                { "key": "date", "value": "2030-07-01" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Watch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dealershipId\": {{dealershipId}},\n  \"serviceTypeId\": {{serviceTypeId}},\n  \"windowStart\": \"2030-07-01T08:00:00.000Z\",\n  \"windowEnd\": \"2030-07-01T17:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/availability/watches"
+          }
+        },
+        {
+          "name": "List My Watches",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/availability/watches"
+          }
+        },
+        {
+          "name": "Cancel Watch",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/availability/watches/{{watchId}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Book Appointment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('appointmentId', pm.response.json().id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customerId}},\n  \"vehicleId\": {{vehicleId}},\n  \"dealershipId\": {{dealershipId}},\n  \"serviceTypeId\": {{serviceTypeId}},\n  \"startTime\": \"2030-07-01T09:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/appointments"
+          }
+        },
+        {
+          "name": "Get Appointment",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/appointments/{{appointmentId}}"
+          }
+        },
+        {
+          "name": "List My Appointments (GET /appointments)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/appointments"
+          }
+        },
+        {
+          "name": "My Appointments (GET /me/appointments)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/me/appointments"
+          }
+        },
+        {
+          "name": "Cancel Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "url": "{{baseUrl}}/appointments/{{appointmentId}}/cancel"
+          }
+        },
+        {
+          "name": "Reschedule Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2030-07-01T10:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/appointments/{{appointmentId}}/reschedule"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List All Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/appointments"
+          }
+        },
+        {
+          "name": "Create Capability",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"PAINT_BOOTH\",\n  \"name\": \"Paint Booth\",\n  \"description\": \"Spray paint booth\"\n}"
+            },
+            "url": "{{baseUrl}}/capabilities"
+          }
+        },
+        {
+          "name": "Add Service Bay",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Bay 3\",\n  \"capabilityIds\": [1]\n}"
+            },
+            "url": "{{baseUrl}}/dealerships/{{dealershipId}}/service-bays"
+          }
+        },
+        {
+          "name": "Add Technician",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Carol (trainee)\",\n  \"skillIds\": [1],\n  \"shiftStartMinutes\": 480,\n  \"shiftEndMinutes\": 1020\n}"
+            },
+            "url": "{{baseUrl}}/dealerships/{{dealershipId}}/technicians"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+        }
+      ]
+    }
+  ]
+}

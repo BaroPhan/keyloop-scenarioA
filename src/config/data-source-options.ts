@@ -1,12 +1,17 @@
 import { DataSourceOptions } from 'typeorm';
-import { Customer } from '../entities/customer.entity';
-import { Vehicle } from '../entities/vehicle.entity';
-import { Dealership } from '../entities/dealership.entity';
-import { ServiceType } from '../entities/service-type.entity';
-import { Skill } from '../entities/skill.entity';
-import { ServiceBay } from '../entities/service-bay.entity';
-import { Technician } from '../entities/technician.entity';
-import { Appointment } from '../entities/appointment.entity';
+import { Customer } from '../domain/entities/customer.entity';
+import { Vehicle } from '../domain/entities/vehicle.entity';
+import { Dealership } from '../domain/entities/dealership.entity';
+import { ServiceType } from '../domain/entities/service-type.entity';
+import { Skill } from '../domain/entities/skill.entity';
+import { ServiceBay } from '../domain/entities/service-bay.entity';
+import { Technician } from '../domain/entities/technician.entity';
+import { Appointment } from '../domain/entities/appointment.entity';
+import { Capability } from '../domain/entities/capability.entity';
+import { Admin } from '../domain/entities/admin.entity';
+import { AdminGroup } from '../domain/entities/admin-group.entity';
+import { Privilege } from '../domain/entities/privilege.entity';
+import { AvailabilityWatch } from '../domain/entities/availability-watch.entity';
 
 export const entities = [
   Customer,
@@ -17,6 +22,11 @@ export const entities = [
   ServiceBay,
   Technician,
   Appointment,
+  Capability,
+  Admin,
+  AdminGroup,
+  Privilege,
+  AvailabilityWatch,
 ];
 
 /**
@@ -33,7 +43,9 @@ export function buildDataSourceOptions(): DataSourceOptions {
     password: process.env.DB_PASSWORD ?? 'schedulerpass',
     database: process.env.DB_DATABASE ?? 'scheduler',
     entities,
+    migrations: [__dirname + '/../migrations/*.{ts,js}'],
     synchronize: (process.env.DB_SYNCHRONIZE ?? 'true') === 'true',
+    migrationsRun: (process.env.DB_MIGRATIONS_RUN ?? 'false') === 'true',
     logging: (process.env.DB_LOGGING ?? 'false') === 'true',
   };
 }
